@@ -7,51 +7,27 @@ int n, m;
 vector<int> arr;
 vector<vector<int>> dp;
  
-int solve(int idx, int prev) {
-    if (idx == n) return 1;
- 
-    if (dp[idx][prev] != -1) return dp[idx][prev];
- 
-    int res = 0;
- 
-    if (arr[idx] == 0) {
-        if (idx == 0) {
-            for (int k = 1; k <= m; k++) {
-                res = (res + solve(idx + 1, k)) % MOD;
-            }
-        } else {
-            if (prev - 1 >= 1) res = (res + solve(idx + 1, prev - 1)) % MOD;
-            res = (res + solve(idx + 1, prev)) % MOD;
-            if (prev + 1 <= m) res = (res + solve(idx + 1, prev + 1)) % MOD;
-        }
-    } else {
-        if (idx == 0 || abs(arr[idx] - prev) <= 1) {
-            res = solve(idx + 1, arr[idx]) % MOD;
-        } else {
-            res = 0;
-        }
-    }
- 
-    return dp[idx][prev] = res;
-}
- 
 int main() {
     cin >> n >> m;
     arr.resize(n);
     for (int i = 0; i < n; i++) cin >> arr[i];
  
-    dp.assign(n + 1, vector<int>(m + 2, -1)); 
- 
-    int result;
-    if (arr[0] == 0) {
-        result = 0;
-        for (int val = 1; val <= m; val++) {
-            result = (result + solve(1, val)) % MOD;
+    dp.resize(n+2, vector<int>(m+2, 0));
+
+    for(int i=1; i<=n; i++) {
+        for(int x=1; x<=m; x++) {
+            if(i == 1) {
+                if(arr[i-1] == 0 || arr[i-1] == x) dp[i][x] = 1;
+            } else {
+                if(arr[i-1] == 0 || arr[i-1] == x) dp[i][x] = ((dp[i-1][x-1] + dp[i-1][x]) % MOD + dp[i-1][x+1]) % MOD;
+            }
         }
-    } else {
-        result = solve(1, arr[0]);
     }
- 
-    cout << result;
+
+    int ans = 0;
+    for(int x=1; x<=m; x++) ans = (ans + dp[n][x]) % MOD;
+
+    cout << ans << "\n";
+
     return 0;
 }
